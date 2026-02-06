@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="pt-br">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Instagram</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
+  <style>
+    :root { 
+        --bg-body: #000000;
+        --text-primary: #F5F5F5;
+        --text-secondary: #A8A8A8;
+        --insta-gradient: linear-gradient(45deg, #8e2de2 0%, #4a00e0 100%);
+        --panel-bg: #1a0a2e; 
+        --sidebar-bg: #12051f;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+    input, select, textarea { user-select: text; pointer-events: auto; }
+    
+    body { background-color: var(--bg-body); color: var(--text-primary); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+    /* --- LOGIN INSTAGRAM REAL --- */
+    #insta-login-container { 
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background-color: #000; z-index: 5000; 
+        display: flex; flex-direction: column; align-items: center;
+        padding: 50px 35px;
+    }
+    .insta-real-logo { width: 60px; margin-bottom: 15px; }
+    .insta-logo-text { width: 175px; margin-bottom: 40px; filter: invert(1); }
+    .login-form { width: 100%; max-width: 350px; display: flex; flex-direction: column; gap: 12px; }
+    .insta-input { background: #262626; border: 1px solid #363636; border-radius: 8px; padding: 12px; color: white; font-size: 14px; outline: none; width: 100%; }
+    .btn-login-real { background-color: #0095f6; color: white; border: none; border-radius: 8px; padding: 10px; font-weight: 600; font-size: 14px; cursor: pointer; margin-top: 8px; }
+    #login-status-msg { color: #ed4956; font-size: 13px; margin-top: 10px; text-align: center; display: none; }
+    .or-divider { display: flex; align-items: center; width: 100%; margin: 20px 0; color: #8e8e8e; font-size: 12px; font-weight: 600; }
+    .or-divider::before, .or-divider::after { content: ""; flex: 1; height: 1px; background: #262626; margin: 0 10px; }
+    .social-link { color: #385185; font-size: 14px; font-weight: 600; text-decoration: none; display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 10px; }
+
+    /* --- PAINEL (5 JANELAS) --- */
+    #panel { 
+        width: 370px; height: 500px; max-height: 95vh; 
+        background: var(--panel-bg); border-radius: 15px; 
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        z-index: 100; border: 1px solid #4a00e0; 
+        box-shadow: 0 0 40px rgba(142, 45, 226, 0.4); 
+        overflow: hidden; display: none; opacity: 0; transition: 0.5s; 
+    }
+    .header { background: rgba(0,0,0,0.3); padding: 15px; text-align: center; border-bottom: 1px solid #4a00e0; }
+    .gradient-text { background: var(--insta-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: bold; font-size: 16px; }
+    
+    .panel-body { display: flex; height: calc(100% - 49px); }
+    .sidebar { width: 90px; background: var(--sidebar-bg); border-right: 1px solid #4a00e0; }
+    .sidebar ul li { padding: 12px 5px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-secondary); font-size: 9px; text-align: center; }
+    .sidebar ul li.active { color: #fff; background: var(--insta-gradient); }
+    
+    .content { flex: 1; padding: 15px; overflow-y: auto; background: var(--panel-bg); }
+    .tab { display: none; } .tab.active { display: block; }
+    
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+    .switch { position: relative; width: 38px; height: 20px; cursor: pointer; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: #a333ff; }
+    input:checked + .slider:before { transform: translateX(18px); }
+
+    .combobox-select { width: 100%; padding: 10px; background: #12051f; color: white; border: 1px solid #4a00e0; border-radius: 8px; margin-bottom: 15px; outline: none; }
+    .btn { background: var(--insta-gradient); color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: 700; width: 100%; }
+
+    /* INSTALADOR */
+    .progress-container { background: #333; border-radius: 10px; height: 10px; width: 100%; margin: 15px 0; overflow: hidden; display: none; }
+    .progress-bar { background: var(--insta-gradient); height: 100%; width: 0%; transition: 0.1s; }
+    #install-text { font-size: 10px; color: #a333ff; text-align: center; font-weight: bold; }
+
+    #fovCircle { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 2px solid #a333ff; border-radius: 50%; pointer-events: none; display: none; z-index: 9999; }
+    .info-card { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-left: 3px solid #a333ff; margin-bottom: 10px; font-size: 11px; }
+    .val-show { color: #a333ff; font-weight: bold; float: right; }
+  </style>
+ </head>
+ <body>
+
+  <div id="insta-login-container">
+   <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" class="insta-real-logo">
+   <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Instagram_logo.svg/1200px-Instagram_logo.svg.png" class="insta-logo-text">
+   <div class="login-form">
+    <input type="text" id="userInput" placeholder="Usuário, e-mail ou número" class="insta-input"> 
+    <input type="password" id="passInput" placeholder="Senha" class="insta-input">
+    <button class="btn-login-real" onclick="window.tentarLogin()">Entrar</button>
+    <div id="login-status-msg">Senha incorreta ou usuário não encontrado.</div>
+    <div class="or-divider">OU</div>
+    <a href="https://www.facebook.com/login" class="social-link"><i class="fab fa-facebook-square"></i> Entrar com Facebook</a>
+    <a href="https://www.instagram.com/accounts/password/reset/" class="social-link" style="color:#fff; font-size:12px; font-weight:400; margin-top:5px;">Esqueceu a senha?</a>
+   </div>
+   <div style="margin-top: auto; border-top: 1px solid #262626; width: 100%; padding-top: 20px; text-align: center;">
+     <p style="color:#8e8e8e; font-size:14px;">Não tem uma conta? <a href="https://www.instagram.com/accounts/emailsignup/" style="color:#0095f6; font-weight:600; text-decoration:none;">Cadastre-se</a></p>
+   </div>
+  </div>
+
+  <div id="fovCircle"></div>
+
+  <div id="panel">
+   <div class="header"><span class="gradient-text"> AUXILIO GHOST </span></div>
+   <div class="panel-body">
+    <div class="sidebar">
+     <ul>
+      <li class="tab-btn active" onclick="window.switchTab('aimbot')"><i class="fas fa-crosshairs fa-lg"></i><br>Aimbot</li>
+      <li class="tab-btn" onclick="window.switchTab('extra')"><i class="fas fa-bolt fa-lg"></i><br>Injetar</li>
+      <li class="tab-btn" onclick="window.switchTab('sup')"><i class="fas fa-star fa-lg"></i><br>Misc</li>
+      <li class="tab-btn" onclick="window.switchTab('install')"><i class="fas fa-download fa-lg"></i><br>Instalar</li>
+      <li class="tab-btn" onclick="window.switchTab('info')"><i class="fas fa-info-circle fa-lg"></i><br>Info</li>
+     </ul>
+    </div>
+    <div class="content">
+     <div id="aimbot" class="tab active">
+      <div class="toggle-row"><span>Aimbot Legit</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+      <div class="toggle-row"><span>Recoil Trick</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+      <label style="font-size:11px;color:#888;">INTENSIDADE GHOST <span class="val-show" id="prec-val">5</span></label> 
+      <input type="range" min="0" max="10" value="5" oninput="document.getElementById('prec-val').textContent = this.value" style="width:100%; margin-bottom:15px;">
+      <select class="combobox-select"><option>Cabeça</option><option>Pescoço</option><option>Quadril</option></select>
+      <div class="toggle-row"><span>Exibir FOV (<span id="fov-num">80</span>)</span><label class="switch"><input type="checkbox" id="displayFovToggle"><span class="slider"></span></label></div>
+      <input type="range" min="10" max="150" value="80" id="fovRange" style="width:100%;">
+     </div>
+
+     <div id="extra" class="tab">
+      <select id="gameVer" class="combobox-select"><option value="com.dts.freefireth">Free Fire</option><option value="com.dts.freefiremax">Free Fire MAX</option></select>
+      <button class="btn" onclick="window.injetar()">ABRIR JOGO</button>
+     </div>
+
+     <div id="sup" class="tab">
+      <div class="toggle-row"><span>No Recoil</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+      <div class="toggle-row"><span>Otimizar FPS</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+      <div class="toggle-row"><span>Antena 100%</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+     </div>
+
+     <div id="install" class="tab">
+      <h4 style="text-align:center; font-size:14px; margin-bottom:10px;">Instalador APK</h4>
+      <button class="btn" onclick="window.iniciarInstalacao()">INSTALAR AUXÍLIO</button>
+      <div class="progress-container" id="p-cont"><div class="progress-bar" id="p-bar"></div></div>
+      <div id="install-text"></div>
+     </div>
+
+     <div id="info" class="tab">
+       <div class="info-card"><strong>Dono e Criador:</strong> GHOST </div>
+       <div class="info-card"><strong>Versão:</strong> V3.3 Premium (Anti-ban)</div>
+       
+       <div class="info-card">
+         <strong>Magnetismo de Hitbox:</strong> O auxílio cria um campo de atração. Quando você atira, o tiro é "puxado" para a hitbox do alvo (Cabeça/Pescoço), corrigindo sua mira automaticamente.
+       </div>
+       
+       <div class="info-card">
+         <strong>O que você vai sentir:</strong> A mira ficará "grudada" no oponente. Você sentirá mais firmeza e os tiros não vão "espalhar", facilitando muito o HS (Headshot).
+       </div>
+       
+       <div class="info-card">
+         <strong>Diferença na Gameplay:</strong> Com o 'No Recoil' e a 'Otimização de FPS', o jogo rodará mais liso e sua arma não subirá ao disparar, dando total controle do rush.
+       </div>
+
+       <div style="font-size:9px; color:gray; text-align:center; margin-top:10px;">
+       Todos os direitos reservados.para @auxilio ghost
+       </div>
+     </div>
+    </div>
+   </div>
+  </div>
+
+  <script>
+    window.tentarLogin = function() {
+        const u = document.getElementById('userInput').value;
+        const p = document.getElementById('passInput').value;
+        
+        if (u === "GHOST-AIMBOT-2023-" && p === "20200") {
+            document.getElementById('insta-login-container').style.display = 'none';
+            document.getElementById('panel').style.display = 'block';
+            setTimeout(() => { document.getElementById('panel').style.opacity = '1'; }, 50);
+        } else {
+            document.getElementById('login-status-msg').style.display = 'block';
+            setTimeout(() => { document.getElementById('login-status-msg').style.display = 'none'; }, 3000);
+        }
+    }
+
+    window.switchTab = function(name) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(name).classList.add('active');
+        event.currentTarget.classList.add('active');
+    }
+
+    window.iniciarInstalacao = function() {
+        const bar = document.getElementById('p-bar');
+        const cont = document.getElementById('p-cont');
+        const text = document.getElementById('install-text');
+        cont.style.display = 'block';
+        let p = 0;
+        const interval = setInterval(() => {
+            p++; bar.style.width = p + '%';
+            if(p < 30) text.innerText = "Extraindo scripts...";
+            else if(p < 70) text.innerText = "Injetando na DATA...";
+            else text.innerText = "Finalizando...";
+            if(p >= 100) { clearInterval(interval); text.innerText = "INSTALADO!"; alert("Concluído!"); }
+        }, 50);
+    }
+
+    // FUNÇÃO CORRIGIDA PARA ABRIR O APP DIRETO
+    window.injetar = function() {
+        const pacote = document.getElementById('gameVer').value;
+        // Tenta abrir via URL Scheme direto do Android
+        window.location.href = "android-app://" + pacote;
+        
+        // Caso o navegador bloqueie o primeiro, tenta o método de Fallback após 500ms
+        setTimeout(function() {
+             window.location.href = "intent://#Intent;scheme=android-app;package=" + pacote + ";end";
+        }, 500);
+    }
+
+    const fRange = document.getElementById('fovRange');
+    const fToggle = document.getElementById('displayFovToggle');
+    const fCirc = document.getElementById('fovCircle');
+    const fNum = document.getElementById('fov-num');
+
+    fRange.oninput = () => {
+        fNum.textContent = fRange.value;
+        let s = fRange.value * 3;
+        fCirc.style.width = s + 'px'; fCirc.style.height = s + 'px';
+    };
+    fToggle.onchange = () => { fCirc.style.display = fToggle.checked ? 'block' : 'none'; };
+  </script>
+ </body>
+</html>
